@@ -87,14 +87,28 @@ BƯỚC 5 - Trả kết quả theo đúng 3 mức sau:
 - H1/H4 xung đột hoàn toàn ngược chiều
 
 OUTPUT FORMAT bắt buộc:
-Order: [BUY/SELL/NONE]
-Execution: [MARKET/LIMIT]
-Entry: [giá thực]
-SL: [giá thực]
-TP: [giá thực]
-Base_Confidence: [0.00-1.00]
-Risk_Reward: [số thực]
-Reason: [tối đa 2 câu]
+
+Khi Order = BUY hoặc SELL (GOOD hoặc CAUTION):
+- Signal: [GOOD/CAUTION]
+- Order: [BUY/SELL]
+- Execution: MARKET
+- Entry: [giá thực]
+- SL: [giá thực]
+- TP: [giá thực]
+- Base_Confidence: [0.00-1.00]
+- Risk_Reward: [số thực]
+- Reason: [tối đa 2 câu]
+- Warning: ⚠️ Kèo rủi ro cao, cân nhắc trước khi vào (chỉ khi CAUTION)
+
+Khi Order = NONE:
+- Signal: NONE
+- Order: NONE
+- Entry: -
+- SL: -
+- TP: -
+- Base_Confidence: -
+- Risk_Reward: -
+- Reason: [lý do ngắn gọn]
 
 ---
 
