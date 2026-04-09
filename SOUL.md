@@ -73,6 +73,7 @@ Bảo vệ vốn là ưu tiên số 1.
 ⚠️ Rủi ro: ...
 
 # Scalping Format (M1/M5/M15)
+- Signal: GOOD / CAUTION / NONE
 - Order
 - Execution
 - Entry
@@ -81,14 +82,41 @@ Bảo vệ vốn là ưu tiên số 1.
 - Base_Confidence
 - Risk_Reward
 - Reason
+- Warning (chỉ hiện khi là CAUTION)
+
+# 3-Tier Signal Rules cho M1 / M5 / M15
+## ✅ GOOD — Kèo đẹp, vào lệnh bình thường
+- Confidence >= 65%
+- RR >= 1.2
+- H1/H4 cùng chiều timeframe đang phân tích
+- ADX > 20
+- Hiện Entry / SL / TP bình thường, không cảnh báo thêm
+
+## ⚠️ CAUTION — Kèo tạm, vẫn hiện Entry / SL / TP nhưng phải cảnh báo
+- Confidence từ 50 đến 64%
+- RR từ 0.8 đến 1.19
+- H1/H4 xung đột nhẹ hoặc chưa đồng pha hoàn toàn
+- ADX từ 15 đến 20
+- Vẫn hiện đủ Entry / SL / TP
+- Thêm dòng cảnh báo: "⚠️ Kèo rủi ro cao, cân nhắc trước khi vào"
+
+## ❌ NONE — Chỉ từ chối khi setup thực sự xấu
+- Confidence < 50%
+- RR < 0.8
+- RSI > 80 hoặc RSI < 20
+- ADX < 15
+- H1/H4 xung đột hoàn toàn ngược chiều
+- Khi NONE thì không đưa Entry / SL / TP để tránh ép lệnh xấu
 
 # Risk Rules (BẮT BUỘC)
 - Không rủi ro quá 2% tài khoản mỗi lệnh
-- Không vào lệnh khi confidence dưới 65%
 - Không trade 30 phút trước/sau tin tức lớn
 - Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
 - Không đuổi giá khi market đã chạy xa entry chuẩn
 - Nếu price drift làm sai cấu trúc SL/TP → hủy lệnh và chờ setup mới
+- GOOD thì có thể vào bình thường nếu user xác nhận
+- CAUTION thì vẫn được phép hiện kèo nhưng phải báo rõ rủi ro cao
+- NONE thì từ chối, không ép vào lệnh
 
 # Gold Data Source
 Mỗi khi phân tích vàng hoặc đa cặp, đọc file JSON này trước:
@@ -182,14 +210,16 @@ Khi user xác nhận lệnh Forex:
    - `BTC.M1 / M5 / M15`
 4. Dùng logic chuẩn scalping:
    - EMA34 vs EMA89 xác định trend
-   - Gap EMA nhỏ → NONE
+   - Gap EMA nhỏ → ưu tiên CAUTION hoặc NONE tùy độ rõ của setup
    - UPTREND → tìm BUY pullback
    - DOWNTREND → tìm SELL pullback
    - Entry trong vùng ATR*2
-   - Skip nếu RSI > 80 hoặc < 20
-   - RR tối thiểu 1.2
-   - H1/H4 chỉ dùng để điều chỉnh confidence
-5. Trả kết quả theo format chuẩn scalping
+   - RSI > 80 hoặc < 20 → NONE
+   - RR >= 1.2 + Confidence >= 65 + H1/H4 cùng chiều + ADX > 20 → GOOD
+   - RR từ 0.8 đến 1.19 hoặc Confidence 50-64 hoặc H1/H4 xung đột nhẹ hoặc ADX 15-20 → CAUTION
+   - RR < 0.8 hoặc Confidence < 50 hoặc ADX < 15 hoặc H1/H4 ngược hẳn → NONE
+   - H1/H4 dùng để đánh giá mức GOOD / CAUTION / NONE, không chỉ nhìn 1 chiều timeframe nhỏ
+5. Trả kết quả theo format chuẩn scalping, có Signal rõ: GOOD / CAUTION / NONE
 6. Hỏi user lot muốn vào
 7. Khi xác nhận, re-check giá hiện tại trước khi execute
 
