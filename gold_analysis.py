@@ -4,7 +4,6 @@ import json
 import sys
 import os
 from datetime import datetime
-from risk_engine import calculate_lot_from_symbol_info
 
 try:
     sys.stdout.reconfigure(encoding='utf-8')
@@ -131,7 +130,7 @@ def find_swing_low(candles, lookback=10):
 
 
 def resolve_symbol(base_symbol):
-    candidates = [base_symbol, f'{base_symbol}m', f'{base_symbol}.a', f'{base_symbol}.r']
+    candidates = [base_symbol, f'{base_symbol}.s', f'{base_symbol}m', f'{base_symbol}.a', f'{base_symbol}.r']
     for candidate in candidates:
         info = mt5.symbol_info(candidate)
         if info and mt5.symbol_select(candidate, True):
@@ -307,7 +306,6 @@ result = {
     'risk_percent': risk_percent,
     'news_blocked': blocked,
     'news_event': event_name,
-    'risk_engine': cfg.get('engine', 'mt5_symbol_info'),
     'candles': {'m5': m5, 'm15': m15[-10:], 'h1': h1[-10:], 'h4': h4[-10:]},
     'm5': {
         'ema34': ema34_m5,
@@ -353,18 +351,16 @@ else:
         entry = tick.bid
         sl = round(tick.ask + sl_points, 2)
         tp = round(tick.bid - tp_points, 2)
-        risk_calc = calculate_lot_from_symbol_info(symbol_info, cfg.get('account_balance', 1000), risk_percent, entry, sl, fallback=fallback_lot)
+        risk_calc = {'lot': fallback_lot}
         result['suggested_lot'] = risk_calc['lot']
-        result['risk_details'] = risk_calc
         result['auto_trade'] = '⏳ CHỜ XÁC NHẬN TỪ BẠN'
         result['pending_signal'] = {'action': 'SELL', 'entry': entry, 'sl': sl, 'tp': tp, 'rsi_h1': rsi_h1, 'rsi_h4': rsi_h4, 'trend': trend, 'confidence': '75%', 'lot': risk_calc['lot']}
     elif rsi_h1 < 35 and ma20_h1 > ma50_h1:
         entry = tick.ask
         sl = round(tick.bid - sl_points, 2)
         tp = round(tick.ask + tp_points, 2)
-        risk_calc = calculate_lot_from_symbol_info(symbol_info, cfg.get('account_balance', 1000), risk_percent, entry, sl, fallback=fallback_lot)
+        risk_calc = {'lot': fallback_lot}
         result['suggested_lot'] = risk_calc['lot']
-        result['risk_details'] = risk_calc
         result['auto_trade'] = '⏳ CHỜ XÁC NHẬN TỪ BẠN'
         result['pending_signal'] = {'action': 'BUY', 'entry': entry, 'sl': sl, 'tp': tp, 'rsi_h1': rsi_h1, 'rsi_h4': rsi_h4, 'trend': trend, 'confidence': '75%', 'lot': risk_calc['lot']}
     else:
