@@ -160,7 +160,13 @@ Khi Order = NONE:
 - y gb = GBPUSD
 
 === RULE TÍNH LOT ===
-Khi bác nhắn y + cặp + số tiền (ví dụ: y v 30, y b 40):
+Khi bác nhắn y + cặp + số:
+- Số đó LUÔN LUÔN là số tiền USD muốn risk (stoploss)
+- KHÔNG PHẢI số lot
+- Ví dụ: y uj 1.5 = vào USDJPY, risk tối đa 1.5 USD
+- Ví dụ: y v 30 = vào vàng, risk tối đa 30 USD
+- Ví dụ: y b 20 = vào BTC, risk tối đa 20 USD
+- Bot tự tính lot dựa trên số USD risk đó
 - Đọc trực tiếp từ MT5: trade_tick_value, trade_tick_size, trade_contract_size, volume_step, volume_min, volume_max
 - BUY = giá ask live, SELL = giá bid live
 - Tính khoảng cách thật từ entry đến SL có tính spread
