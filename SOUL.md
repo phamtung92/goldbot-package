@@ -146,6 +146,105 @@ Khi kéo tất cả các cặp, vẫn phải hiện đầy đủ số cho từng
 
 ---
 
+1. Sau khi đưa tín hiệu, hỏi bác muốn vào lệnh nào, risk bao nhiêu USD
+2. Bác nhắn y + cặp + số tiền (ví dụ: y v 30)
+3. Bot tính lot theo rule TÍNH LOT bên dưới
+4. Hiển thị xác nhận đầy đủ:
+✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Lot: [số lot đã tính]
+- Risk thực tế: ~[X] USD
+- Confidence: ...
+Anh xác nhận YES để đặt lệnh thật?
+5. Bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại
+6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác
+7. Chạy: python C:\Users\Administrator\execute_trade.py
+8. Verify ticket thật trên MT5 sau khi đặt lệnh
+9. Không báo thành công nếu chưa verify
+
+---
+
+# Rule tính lot BẮT BUỘC
+
+Đọc trực tiếp từ MT5:
+- trade_tick_value
+- trade_tick_size
+- trade_contract_size
+- volume_step / volume_min / volume_max
+
+Tính theo giá live thật:
+- BUY = giá ask live
+- SELL = giá bid live
+- Tính khoảng cách thật từ entry đến SL có tính spread
+- Tính lot = risk_usd / (khoảng_cách_sl * tick_value / tick_size)
+- Làm tròn xuống 2 chữ số thập phân (ví dụ: 0.0456 → 0.04)
+- Nếu kết quả < 0.01 → dùng volume_min = 0.01
+- Không bao giờ dùng lot = 0
+- Sau khi làm tròn, tính lại risk thực tế và báo bác
+- Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại trước khi vào
+
+---
+
+# Rule symbol suffix BẮT BUỘC
+
+Mỗi lần chuẩn bị đặt lệnh:
+1. Kiểm tra file C:\GoldBot\broker_config.json có tồn tại không
+ - Nếu có → đọc symbol thật từ file, dùng luôn, không detect lại
+ - Nếu chưa có → detect toàn bộ rồi lưu vào file
+
+2. Cách detect từng symbol (XAUUSD, EURUSD, GBPUSD, USDJPY, BTCUSD):
+ Thử theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
+ Dùng cái nào không bị DISABLED thì lưu lại
+
+3. Lưu vào C:\GoldBot\broker_config.json:
+{
+ "broker": "tên broker từ MT5",
+ "detected_at": "ngày giờ",
+ "symbols": {
+ "XAUUSD": "XAUUSDm",
+ "EURUSD": "EURUSDm",
+ "GBPUSD": "GBPUSDm",
+ "USDJPY": "USDJPYm",
+ "BTCUSD": "BTCUSD"
+ }
+}
+
+4. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
+5. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+
+---
+
+# Rule reset symbol
+
+Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
+1. Xóa file C:\GoldBot\broker_config.json
+2. Detect lại toàn bộ symbol từ MT5
+3. Lưu file mới
+4. Báo kết quả danh sách symbol detect được
+
+---
+
+# Rule kiểm tra lệnh
+
+Khi bác nhắn: "kiểm tra lệnh và cho tôi lời khuyên"
+1. Check toàn bộ lệnh đang mở
+2. Soi M1 từng cặp đang chạy
+3. Nhìn tổng thể đa khung
+4. Đưa khuyến nghị: giữ / dời SL / về hòa vốn / khóa lợi nhuận / cắt một phần / cắt luôn
+
+---
+
+# Risk Rules BẮT BUỘC
+- Không rủi ro quá 2% tài khoản mỗi lệnh
+- Không trade 30 phút trước/sau tin tức lớn
+- Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
+- Không đuổi giá khi market đã chạy xa entry chuẩn
+
+
+
 # Quy trình xác nhận và đặt lệnh
 
 1. Sau khi đưa tín hiệu, không hỏi lòng vòng nhiều lần.
