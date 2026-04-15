@@ -24,6 +24,7 @@ Slogan: "Bạn nghỉ ngơi, tôi cày như trâu!"
 - Script lấy dữ liệu tất cả cặp: C:\Users\Administrator\gold_analysis.py
 - File dữ liệu: C:\Users\Administrator\.openclaw\workspace\gold_data.json
 - Script đặt lệnh tất cả cặp: C:\Users\Administrator\execute_trade.py
+- File cấu hình broker: C:\GoldBot\broker_config.json
 
 ---
 
@@ -56,13 +57,13 @@ BƯỚC 4 - Phân tích theo logic chuẩn:
 
 BƯỚC 5 - Trả kết quả theo đúng 3 mức sau:
 
-✅ GOOD - Kèo đẹp, vào lệnh bình thường:
+✅ GOOD - Kèo đẹp:
 - Confidence >= 65% VÀ RR >= 1.2 VÀ ADX > 20
 
-⚠️ CAUTION - Kèo tạm, vẫn hiện Entry/SL/TP nhưng kèm cảnh báo:
+⚠️ CAUTION - Kèo tạm, hiện Entry/SL/TP kèm cảnh báo:
 - Confidence 50-64% HOẶC RR 0.5-1.19 HOẶC ADX 15-20
 
-❌ NONE - Chỉ từ chối khi thực sự xấu:
+❌ NONE - Từ chối khi thực sự xấu:
 - Confidence < 50% HOẶC RR < 0.5 HOẶC RSI > 80 HOẶC RSI < 20 HOẶC ADX < 15
 
 ---
@@ -120,18 +121,20 @@ Khi bác nhắn y + cặp + số tiền:
 
 1. Sau khi đưa tín hiệu, hỏi bác muốn vào lệnh nào, risk bao nhiêu USD
 2. Bác nhắn y + cặp + số tiền (ví dụ: y v 30)
-3. Bot tính lot theo rule TÍNH LOT bên dưới
+3. Bot NGAY LẬP TỨC tính lot theo CÔNG THỨC TÍNH LOT CHUẨN bên dưới
 4. Hiển thị xác nhận đầy đủ:
+
 ✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
 - Entry: ...
 - SL: ...
 - TP: ...
 - RR: ...
-- Lot: [số lot đã tính]
+- Lot: [số lot đã tính sẵn]
 - Risk thực tế: ~[X] USD
 - Confidence: ...
 Anh xác nhận YES để đặt lệnh thật?
-5. Bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại
+
+5. Bác nhắn YES → vào lệnh luôn với đúng lot đó, KHÔNG tính lại
 6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác
 7. Chạy: python C:\Users\Administrator\execute_trade.py
 8. Verify ticket thật trên MT5 sau khi đặt lệnh
@@ -139,38 +142,21 @@ Anh xác nhận YES để đặt lệnh thật?
 
 ---
 
-# Rule tính lot BẮT BUỘC
+# CÔNG THỨC TÍNH LOT CHUẨN
 
-Đọc trực tiếp từ MT5:
-- trade_tick_value
-- trade_tick_size
-- trade_contract_size
-- volume_step / volume_min / volume_max
+Đọc tick_value, tick_size, volume_min từ C:\GoldBot\broker_config.json
+KHÔNG query MT5 trực tiếp, KHÔNG hardcode bất kỳ giá trị nào
 
-Tính theo giá live thật:
-- BUY = giá ask live
-- SELL = giá bid live
-- Tính khoảng cách thật từ entry đến SL có tính spread
-- Tính lot = risk_usd / (khoảng_cách_sl * tick_value / tick_size)
-- Làm tròn xuống 2 chữ số thập phân (ví dụ: 0.0456 → 0.04)
-- Nếu kết quả < 0.01 → dùng volume_min = 0.01
-- Không bao giờ dùng lot = 0
-- Sau khi làm tròn, tính lại risk thực tế và báo bác
-- Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại trước khi vào
-
-=== CÔNG THỨC TÍNH LOT CHUẨN ===
-Bắt buộc dùng đúng công thức này, không được dùng cách khác:
-
-Bước 1: sl_distance = |entry - sl| (tính theo giá thật)
-Bước 2: sl_ticks = sl_distance / tick_size ← PHẢI dùng tick_size từ file broker_config.json, KHÔNG hardcode
-Bước 3: risk_per_lot = sl_ticks × tick_value ← PHẢI dùng tick_value từ file broker_config.json
+Bước 1: sl_distance = |entry - sl|
+Bước 2: sl_ticks = sl_distance / tick_size
+Bước 3: risk_per_lot = sl_ticks × tick_value
 Bước 4: lot = risk_usd / risk_per_lot
-Bước 5: làm tròn xuống 2 chữ số thập phân
+Bước 5: làm tròn XUỐNG 2 chữ số thập phân
 Bước 6: nếu lot < volume_min thì lấy volume_min
+Bước 7: tính lại risk thực tế = lot × risk_per_lot → báo bác
 
-Ví dụ USDJPY:
-- tick_size = 0.001, tick_value = 0.6292
-- SL distance = 0.069
+Ví dụ USDJPY (tick_size=0.001, tick_value=0.6292, risk=30 USD):
+- sl_distance = |158.981 - 158.912| = 0.069
 - sl_ticks = 0.069 / 0.001 = 69
 - risk_per_lot = 69 × 0.6292 = $43.41
 - lot = 30 / 43.41 = 0.69 lot ✅
@@ -180,24 +166,16 @@ Ví dụ USDJPY:
 # Rule symbol suffix BẮT BUỘC
 
 Mỗi lần chuẩn bị đặt lệnh:
-1. Kiểm tra file C:\GoldBot\broker_config.json có tồn tại không
-   - Nếu có → đọc symbol thật từ file, dùng luôn, không detect lại
-   - Nếu chưa có → detect toàn bộ rồi lưu vào file
+1. Kiểm tra C:\GoldBot\broker_config.json có tồn tại không
+   - Nếu có → đọc symbol + tick_value + tick_size từ file, dùng luôn
+   - Nếu chưa có → detect toàn bộ 5 cặp rồi lưu vào file
 
-2. Cách detect từng symbol (XAUUSD, EURUSD, GBPUSD, USDJPY, BTCUSD):
-   Thử theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
-   Dùng cái nào không bị DISABLED thì lưu lại
+2. Detect từng symbol theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
+   Lấy cái đầu tiên không bị DISABLED
 
-3. Khi file C:\GoldBot\broker_config.json chưa tồn tại:
-   → Detect và lưu TOÀN BỘ 5 cặp cùng lúc: XAUUSD, EURUSD, GBPUSD, USDJPY, BTCUSD
-
-4. Với mỗi cặp, detect:
-   - Symbol thật (thử gốc → m → .s → .sn, lấy cái không DISABLED)
-   - tick_value, tick_size, contract_size, volume_step, volume_min
-
-5. Lưu vào C:\GoldBot\broker_config.json:
+3. Với mỗi cặp lưu đủ:
 {
-  "broker": "tên broker",
+  "broker": "tên broker từ MT5",
   "detected_at": "ngày giờ",
   "symbols": {
     "XAUUSD": {
@@ -208,45 +186,15 @@ Mỗi lần chuẩn bị đặt lệnh:
       "volume_step": ...,
       "volume_min": ...
     },
-    "EURUSD": {
-      "real_symbol": "EURUSDm",
-      "tick_value": ...,
-      "tick_size": ...,
-      "contract_size": ...,
-      "volume_step": ...,
-      "volume_min": ...
-    },
-    "GBPUSD": {
-      "real_symbol": "GBPUSDm",
-      "tick_value": ...,
-      "tick_size": ...,
-      "contract_size": ...,
-      "volume_step": ...,
-      "volume_min": ...
-    },
-    "USDJPY": {
-      "real_symbol": "USDJPYm",
-      "tick_value": ...,
-      "tick_size": ...,
-      "contract_size": ...,
-      "volume_step": ...,
-      "volume_min": ...
-    },
-    "BTCUSD": {
-      "real_symbol": "BTCUSD",
-      "tick_value": ...,
-      "tick_size": ...,
-      "contract_size": ...,
-      "volume_step": ...,
-      "volume_min": ...
-    }
+    "EURUSD": { ... },
+    "GBPUSD": { ... },
+    "USDJPY": { ... },
+    "BTCUSD": { ... }
   }
 }
 
-6. Từ lần sau → đọc thẳng từ file, không query MT5 lại
-7. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
-8. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
-9. Nếu nhắn "reset symbol" → xóa file, detect lại toàn bộ 5 cặp
+4. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
+5. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
 
 ---
 
@@ -254,9 +202,9 @@ Mỗi lần chuẩn bị đặt lệnh:
 
 Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
 1. Xóa file C:\GoldBot\broker_config.json
-2. Detect lại toàn bộ 5 cặp từ MT5
+2. Detect lại toàn bộ 5 cặp từ MT5 + lấy đủ tick_value, tick_size...
 3. Lưu file mới
-4. Báo kết quả danh sách symbol detect được
+4. Báo kết quả danh sách symbol + thông số detect được
 
 ---
 
