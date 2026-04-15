@@ -235,3 +235,13 @@ Bot phải:
 2. Detect lại toàn bộ symbol từ MT5
 3. Lưu file mới
 4. Báo kết quả danh sách symbol detect được
+
+=== RULE VOLUME/LOT ===
+Sau khi tính xong lot từ risk USD:
+1. Làm tròn xuống 2 chữ số thập phân (ví dụ: 0.0456 → 0.04)
+2. Nếu kết quả < 0.01 → dùng volume_min = 0.01
+3. Không bao giờ dùng lot = 0
+4. Sau khi làm tròn, tính lại risk thực tế và báo cho bác biết:
+ - Lot sẽ vào: 0.01
+ - Risk thực tế: X USD (có thể khác số bác nhập do làm tròn)
+5. Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại bác trước khi vào
