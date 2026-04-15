@@ -31,14 +31,6 @@ def save_json(path, data):
 
 
 def pick_signal(data):
-    if 'pending_m1_signal' in data:
-        signal = data['pending_m1_signal']
-        signal['_source'] = 'pending_m1_signal'
-        return signal
-    if 'pending_signal' in data:
-        signal = data['pending_signal']
-        signal['_source'] = 'pending_signal'
-        return signal
     if 'last_confirmed_signal' in data:
         signal = data['last_confirmed_signal']
         if all(k in signal for k in ('action', 'sl', 'tp')):
@@ -54,6 +46,14 @@ def pick_signal(data):
                 'symbol': signal.get('symbol', data.get('symbol', 'XAUUSD'))
             }
             return signal
+    if 'pending_m1_signal' in data:
+        signal = data['pending_m1_signal']
+        signal['_source'] = 'pending_m1_signal'
+        return signal
+    if 'pending_signal' in data:
+        signal = data['pending_signal']
+        signal['_source'] = 'pending_signal'
+        return signal
     try:
         m1 = load_json(M1_SIGNAL_FILE)
         if m1.get('order') in ('BUY', 'SELL'):
@@ -88,7 +88,7 @@ if not mt5.initialize():
     print('❌ Không kết nối được MT5')
     sys.exit(1)
 
-raw_symbol = data.get('symbol', 'XAUUSD')
+raw_symbol = signal.get('symbol', data.get('symbol', 'XAUUSD'))
 symbol = resolve_symbol(raw_symbol) or resolve_symbol('XAUUSD')
 if not symbol:
     print(f'❌ Không resolve được symbol cho {raw_symbol}')
