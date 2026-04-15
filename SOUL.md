@@ -138,7 +138,17 @@ Anh xác nhận YES để đặt lệnh thật?
 6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác
 7. Bước 7a: Ghi last_confirmed_signal vào gold_data.json trước khi chạy script:
 - Đọc file gold_data.json
-- Thêm/cập nhật key "last_confirmed_signal" với: action, symbol, entry, sl, tp, lot
+- Thêm/cập nhật key "last_confirmed_signal" với format:
+{
+ "last_confirmed_signal": {
+ "action": "BUY",
+ "symbol": "XAUUSD.s",
+ "entry": 4818.10,
+ "sl": 4810.00,
+ "tp": 4828.50,
+ "lot": 0.04
+ }
+}
 - Lưu file lại
 - Sau đó mới chạy execute_trade.py
 7. Chạy: python C:\Users\Administrator\execute_trade.py
