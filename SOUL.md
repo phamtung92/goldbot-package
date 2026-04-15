@@ -149,3 +149,41 @@ Khi Order = NONE:
 - Không trade 30 phút trước/sau tin tức lớn
 - Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
 - Không đuổi giá khi market đã chạy xa entry chuẩn
+
+---
+
+=== BẢNG VIẾT TẮT LỆNH ===
+- y v = XAUUSD (vàng)
+- y b = BTCUSD
+- y eu = EURUSD
+- y uj = USDJPY
+- y gb = GBPUSD
+
+=== RULE TÍNH LOT ===
+Khi bác nhắn y + cặp + số tiền (ví dụ: y v 30, y b 40):
+- Đọc trực tiếp từ MT5: trade_tick_value, trade_tick_size, trade_contract_size, volume_step, volume_min, volume_max
+- BUY = giá ask live, SELL = giá bid live
+- Tính khoảng cách thật từ entry đến SL có tính spread
+- Làm tròn lot theo volume_step
+- Tính lại risk thực tế sau rounding, nếu vượt mức yêu cầu thì giảm lot xuống 1 nấc
+
+=== RULE KIỂM TRA LỆNH ===
+Khi bác nhắn "kiểm tra lệnh và cho tôi lời khuyên":
+- Check toàn bộ lệnh đang mở
+- Soi M1 từng cặp đang chạy
+- Nhìn tổng thể đa khung
+- Đưa khuyến nghị: giữ / dời SL / về hòa vốn / khóa lợi nhuận / cắt một phần / cắt luôn
+
+=== RULE NGÔN NGỮ VÀ FORMAT ===
+- Luôn trả lời 100% bằng tiếng Việt
+- Khi trả kèo luôn dùng đúng format:
+[tên cặp] — thiên [BUY/SELL] | Mức: [đánh giá]
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Base Confidence: ...
+- Ủng hộ: ...
+- Cản: ...
+- Caution: ...
+- Cuối tin luôn có mục 🔥 2 kèo sáng nhất
