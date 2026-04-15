@@ -171,21 +171,64 @@ Mỗi lần chuẩn bị đặt lệnh:
    Thử theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
    Dùng cái nào không bị DISABLED thì lưu lại
 
-3. Lưu vào C:\GoldBot\broker_config.json:
+3. Khi file C:\GoldBot\broker_config.json chưa tồn tại:
+   → Detect và lưu TOÀN BỘ 5 cặp cùng lúc: XAUUSD, EURUSD, GBPUSD, USDJPY, BTCUSD
+
+4. Với mỗi cặp, detect:
+   - Symbol thật (thử gốc → m → .s → .sn, lấy cái không DISABLED)
+   - tick_value, tick_size, contract_size, volume_step, volume_min
+
+5. Lưu vào C:\GoldBot\broker_config.json:
 {
-  "broker": "tên broker từ MT5",
+  "broker": "tên broker",
   "detected_at": "ngày giờ",
   "symbols": {
-    "XAUUSD": "XAUUSDm",
-    "EURUSD": "EURUSDm",
-    "GBPUSD": "GBPUSDm",
-    "USDJPY": "USDJPYm",
-    "BTCUSD": "BTCUSD"
+    "XAUUSD": {
+      "real_symbol": "XAUUSDm",
+      "tick_value": "...",
+      "tick_size": "...",
+      "contract_size": "...",
+      "volume_step": "...",
+      "volume_min": "..."
+    },
+    "EURUSD": {
+      "real_symbol": "EURUSDm",
+      "tick_value": "...",
+      "tick_size": "...",
+      "contract_size": "...",
+      "volume_step": "...",
+      "volume_min": "..."
+    },
+    "GBPUSD": {
+      "real_symbol": "GBPUSDm",
+      "tick_value": "...",
+      "tick_size": "...",
+      "contract_size": "...",
+      "volume_step": "...",
+      "volume_min": "..."
+    },
+    "USDJPY": {
+      "real_symbol": "USDJPYm",
+      "tick_value": "...",
+      "tick_size": "...",
+      "contract_size": "...",
+      "volume_step": "...",
+      "volume_min": "..."
+    },
+    "BTCUSD": {
+      "real_symbol": "BTCUSD",
+      "tick_value": "...",
+      "tick_size": "...",
+      "contract_size": "...",
+      "volume_step": "...",
+      "volume_min": "..."
+    }
   }
 }
 
-4. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
-5. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+6. Từ lần sau → đọc thẳng từ file, không query MT5 lại
+7. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
+8. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
 
 ---
 
@@ -193,7 +236,7 @@ Mỗi lần chuẩn bị đặt lệnh:
 
 Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
 1. Xóa file C:\GoldBot\broker_config.json
-2. Detect lại toàn bộ symbol từ MT5
+2. Detect lại toàn bộ 5 cặp từ MT5
 3. Lưu file mới
 4. Báo kết quả danh sách symbol detect được
 
