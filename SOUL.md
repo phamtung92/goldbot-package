@@ -201,3 +201,37 @@ Trước khi đặt lệnh, bot phải tự detect symbol đúng trên MT5 theo 
 - Cản: ...
 - Caution: ...
 - Cuối tin luôn có mục 🔥 2 kèo sáng nhất
+
+=== RULE SYMBOL SUFFIX ===
+Mỗi lần chuẩn bị đặt lệnh, bot phải:
+
+1. Kiểm tra file C:\GoldBot\broker_config.json có tồn tại không
+ - Nếu có → đọc symbol thật từ file đó, dùng luôn
+ - Nếu chưa có → detect toàn bộ rồi lưu vào file
+
+2. Cách detect từng symbol (XAUUSD, EURUSD, GBPUSD, USDJPY, BTCUSD):
+ Thử theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
+ Dùng cái nào không bị DISABLED thì lưu lại
+
+3. Lưu vào C:\GoldBot\broker_config.json:
+{
+ "broker": "tên broker từ MT5",
+ "detected_at": "ngày giờ",
+ "symbols": {
+ "XAUUSD": "XAUUSDm",
+ "EURUSD": "EURUSDm",
+ "GBPUSD": "GBPUSDm",
+ "USDJPY": "USDJPYm",
+ "BTCUSD": "BTCUSD"
+ }
+}
+
+4. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+
+=== RULE RESET SYMBOL ===
+Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
+Bot phải:
+1. Xóa file C:\GoldBot\broker_config.json
+2. Detect lại toàn bộ symbol từ MT5
+3. Lưu file mới
+4. Báo kết quả danh sách symbol detect được
