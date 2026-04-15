@@ -39,6 +39,21 @@ def pick_signal(data):
         signal = data['pending_signal']
         signal['_source'] = 'pending_signal'
         return signal
+    if 'last_confirmed_signal' in data:
+        signal = data['last_confirmed_signal']
+        if all(k in signal for k in ('action', 'sl', 'tp')):
+            if 'lot' not in signal:
+                signal['lot'] = 0.01
+            signal['_source'] = 'last_confirmed_signal'
+            data['pending_signal'] = {
+                'action': signal['action'],
+                'entry': signal.get('entry'),
+                'sl': signal['sl'],
+                'tp': signal['tp'],
+                'lot': signal.get('lot', 0.01),
+                'symbol': signal.get('symbol', data.get('symbol', 'XAUUSD'))
+            }
+            return signal
     try:
         m1 = load_json(M1_SIGNAL_FILE)
         if m1.get('order') in ('BUY', 'SELL'):
