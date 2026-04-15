@@ -148,18 +148,22 @@ Anh xác nhận YES để đặt lệnh thật?
 KHÔNG query MT5 trực tiếp, KHÔNG hardcode bất kỳ giá trị nào
 
 Bước 1: sl_distance = |entry - sl|
-Bước 2: sl_ticks = sl_distance / tick_size
-Bước 3: risk_per_lot = sl_ticks × tick_value
-Bước 4: lot = risk_usd / risk_per_lot
-Bước 5: làm tròn XUỐNG 2 chữ số thập phân
-Bước 6: nếu lot < volume_min thì lấy volume_min
-Bước 7: tính lại risk thực tế = lot × risk_per_lot → báo bác
+Bước 2: lấy spread thực tế = ask - bid (đọc live từ MT5)
+Bước 3: sl_distance_real = sl_distance + spread (cộng spread vào SL)
+Bước 4: sl_ticks = sl_distance_real / tick_size
+Bước 5: risk_per_lot = sl_ticks × tick_value
+Bước 6: lot = risk_usd / risk_per_lot
+Bước 7: làm tròn XUỐNG 2 chữ số thập phân
+Bước 8: nếu lot < volume_min thì lấy volume_min
+Bước 9: tính lại risk thực tế = lot × risk_per_lot → báo bác
 
-Ví dụ USDJPY (tick_size=0.001, tick_value=0.6292, risk=30 USD):
-- sl_distance = |158.981 - 158.912| = 0.069
-- sl_ticks = 0.069 / 0.001 = 69
-- risk_per_lot = 69 × 0.6292 = $43.41
-- lot = 30 / 43.41 = 0.69 lot ✅
+Ví dụ USDJPY (tick_size=0.001, tick_value=0.6292, risk=1.5 USD, spread=0.022):
+- sl_distance = |158.889 - 158.930| = 0.041
+- sl_distance_real = 0.041 + 0.022 = 0.063
+- sl_ticks = 0.063 / 0.001 = 63
+- risk_per_lot = 63 × 0.6292 = $39.64
+- lot = 1.5 / 39.64 = 0.037 → làm tròn = 0.03 lot
+- risk thực tế = 0.03 × 39.64 = ~$1.19 USD ✅ không vượt 1.5 USD
 
 ---
 
