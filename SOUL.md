@@ -158,6 +158,23 @@ Tính theo giá live thật:
 - Sau khi làm tròn, tính lại risk thực tế và báo bác
 - Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại trước khi vào
 
+=== CÔNG THỨC TÍNH LOT CHUẨN ===
+Bắt buộc dùng đúng công thức này, không được dùng cách khác:
+
+Bước 1: sl_distance = |entry - sl| (tính theo giá thật)
+Bước 2: sl_ticks = sl_distance / tick_size ← PHẢI dùng tick_size từ file broker_config.json, KHÔNG hardcode
+Bước 3: risk_per_lot = sl_ticks × tick_value ← PHẢI dùng tick_value từ file broker_config.json
+Bước 4: lot = risk_usd / risk_per_lot
+Bước 5: làm tròn xuống 2 chữ số thập phân
+Bước 6: nếu lot < volume_min thì lấy volume_min
+
+Ví dụ USDJPY:
+- tick_size = 0.001, tick_value = 0.6292
+- SL distance = 0.069
+- sl_ticks = 0.069 / 0.001 = 69
+- risk_per_lot = 69 × 0.6292 = $43.41
+- lot = 30 / 43.41 = 0.69 lot ✅
+
 ---
 
 # Rule symbol suffix BẮT BUỘC
@@ -185,43 +202,43 @@ Mỗi lần chuẩn bị đặt lệnh:
   "symbols": {
     "XAUUSD": {
       "real_symbol": "XAUUSDm",
-      "tick_value": "...",
-      "tick_size": "...",
-      "contract_size": "...",
-      "volume_step": "...",
-      "volume_min": "..."
+      "tick_value": ...,
+      "tick_size": ...,
+      "contract_size": ...,
+      "volume_step": ...,
+      "volume_min": ...
     },
     "EURUSD": {
       "real_symbol": "EURUSDm",
-      "tick_value": "...",
-      "tick_size": "...",
-      "contract_size": "...",
-      "volume_step": "...",
-      "volume_min": "..."
+      "tick_value": ...,
+      "tick_size": ...,
+      "contract_size": ...,
+      "volume_step": ...,
+      "volume_min": ...
     },
     "GBPUSD": {
       "real_symbol": "GBPUSDm",
-      "tick_value": "...",
-      "tick_size": "...",
-      "contract_size": "...",
-      "volume_step": "...",
-      "volume_min": "..."
+      "tick_value": ...,
+      "tick_size": ...,
+      "contract_size": ...,
+      "volume_step": ...,
+      "volume_min": ...
     },
     "USDJPY": {
       "real_symbol": "USDJPYm",
-      "tick_value": "...",
-      "tick_size": "...",
-      "contract_size": "...",
-      "volume_step": "...",
-      "volume_min": "..."
+      "tick_value": ...,
+      "tick_size": ...,
+      "contract_size": ...,
+      "volume_step": ...,
+      "volume_min": ...
     },
     "BTCUSD": {
       "real_symbol": "BTCUSD",
-      "tick_value": "...",
-      "tick_size": "...",
-      "contract_size": "...",
-      "volume_step": "...",
-      "volume_min": "..."
+      "tick_value": ...,
+      "tick_size": ...,
+      "contract_size": ...,
+      "volume_step": ...,
+      "volume_min": ...
     }
   }
 }
@@ -229,6 +246,7 @@ Mỗi lần chuẩn bị đặt lệnh:
 6. Từ lần sau → đọc thẳng từ file, không query MT5 lại
 7. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
 8. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+9. Nếu nhắn "reset symbol" → xóa file, detect lại toàn bộ 5 cặp
 
 ---
 
