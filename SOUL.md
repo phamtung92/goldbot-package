@@ -181,11 +181,12 @@ Khi bác nhắn "kiểm tra lệnh và cho tôi lời khuyên":
 - Đưa khuyến nghị: giữ / dời SL / về hòa vốn / khóa lợi nhuận / cắt một phần / cắt luôn
 
 === RULE XỬ LÝ HẬU TỐ SYMBOL ===
-Trước khi đặt lệnh, bot phải tự detect symbol đúng trên MT5:
-- Thử symbol gốc trước (GBPUSD, XAUUSD...)
-- Nếu bị DISABLED hoặc mode không phải FULL, thử thêm hậu tố .s (GBPUSD.s, XAUUSD.s)
-- Dùng symbol nào trade được thì dùng cái đó
-- Không được hardcode symbol, luôn check trạng thái trước khi vào lệnh
+Trước khi đặt lệnh, bot phải tự detect symbol đúng trên MT5 theo thứ tự:
+1. Thử symbol gốc (XAUUSD, GBPUSD...)
+2. Nếu không được, thử thêm hậu tố m (XAUUSDm, GBPUSDm...)
+3. Nếu không được, thử thêm hậu tố .s (XAUUSD.s, GBPUSD.s...)
+4. Dùng symbol nào trade được (mode FULL hoặc mode 4) thì dùng cái đó
+5. Không hardcode symbol, luôn check trước khi vào lệnh
 
 === RULE NGÔN NGỮ VÀ FORMAT ===
 - Luôn trả lời 100% bằng tiếng Việt
