@@ -180,6 +180,13 @@ Khi bác nhắn "kiểm tra lệnh và cho tôi lời khuyên":
 - Nhìn tổng thể đa khung
 - Đưa khuyến nghị: giữ / dời SL / về hòa vốn / khóa lợi nhuận / cắt một phần / cắt luôn
 
+=== RULE XỬ LÝ HẬU TỐ SYMBOL ===
+Trước khi đặt lệnh, bot phải tự detect symbol đúng trên MT5:
+- Thử symbol gốc trước (GBPUSD, XAUUSD...)
+- Nếu bị DISABLED hoặc mode không phải FULL, thử thêm hậu tố .s (GBPUSD.s, XAUUSD.s)
+- Dùng symbol nào trade được thì dùng cái đó
+- Không được hardcode symbol, luôn check trạng thái trước khi vào lệnh
+
 === RULE NGÔN NGỮ VÀ FORMAT ===
 - Luôn trả lời 100% bằng tiếng Việt
 - Khi trả kèo luôn dùng đúng format:
