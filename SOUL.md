@@ -227,6 +227,10 @@ Mỗi lần chuẩn bị đặt lệnh, bot phải:
 }
 
 4. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+5. Chỉ detect symbol 1 lần duy nhất rồi lưu vào C:\GoldBot\broker_config.json
+6. Từ lần sau đọc thẳng từ file, không detect lại
+7. Không hiển thị thông báo "Cập nhật symbol thành..." mỗi lần vào lệnh
+8. Chỉ detect lại khi: file chưa có, bị DISABLED, hoặc bác nhắn "reset symbol"
 
 === RULE RESET SYMBOL ===
 Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
@@ -245,3 +249,14 @@ Sau khi tính xong lot từ risk USD:
  - Lot sẽ vào: 0.01
  - Risk thực tế: X USD (có thể khác số bác nhập do làm tròn)
 5. Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại bác trước khi vào
+6. Khi hỏi xác nhận lệnh, phải tính lot trước và hiển thị luôn:
+✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Lot: 0.07
+- Risk thực tế: ~1.5 USD
+- Confidence: ...
+Anh xác nhận YES để đặt lệnh thật?
+7. Khi bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại nữa
