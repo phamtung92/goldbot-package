@@ -13,6 +13,9 @@ WORKSPACE_FILE = 'C:/Users/Administrator/.openclaw/workspace/gold_data.json'
 M1_SIGNAL_FILE = 'C:/Users/Administrator/.openclaw/workspace/gold_m1_prompt_signal.json'
 
 
+from symbol_utils import resolve_symbol, broker_safe_stops
+
+
 def now_vn():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S GMT+7')
 
@@ -70,25 +73,33 @@ if not mt5.initialize():
     print('❌ Không kết nối được MT5')
     sys.exit(1)
 
-symbol = data['symbol']
-mt5.symbol_select(symbol, True)
+raw_symbol = data.get('symbol', 'XAUUSD')
+symbol = resolve_symbol(raw_symbol) or resolve_symbol('XAUUSD')
+if not symbol:
+    print(f'❌ Không resolve được symbol cho {raw_symbol}')
+    mt5.shutdown()
+    sys.exit(1)
+
 tick = mt5.symbol_info_tick(symbol)
+if tick is None:
+    print(f'❌ Không lấy được tick cho {symbol}')
+    mt5.shutdown()
+    sys.exit(1)
+
 price = tick.ask if action == 'BUY' else tick.bid
+sl, tp = broker_safe_stops(symbol, price, float(sl), float(tp), action)
 order_type = mt5.ORDER_TYPE_BUY if action == 'BUY' else mt5.ORDER_TYPE_SELL
 
 symbol_info = mt5.symbol_info(symbol)
-filling_mode = symbol_info.filling_mode
-if filling_mode & mt5.ORDER_FILLING_FOK:
-    filling = mt5.ORDER_FILLING_FOK
-elif filling_mode & mt5.ORDER_FILLING_IOC:
-    filling = mt5.ORDER_FILLING_IOC
-else:
-    filling = mt5.ORDER_FILLING_RETURN
+fill_candidates = [
+    ('FOK', mt5.ORDER_FILLING_FOK),
+    ('IOC', mt5.ORDER_FILLING_IOC),
+    ('RETURN', mt5.ORDER_FILLING_RETURN),
+]
 
-print(f'🔧 Filling mode detected: {filling}')
 print(f'📌 Signal source: {source}')
 
-request = {
+base_request = {
     'action': mt5.TRADE_ACTION_DEAL,
     'symbol': symbol,
     'volume': volume,
@@ -100,12 +111,25 @@ request = {
     'magic': 234000,
     'comment': 'GoldBot',
     'type_time': mt5.ORDER_TIME_GTC,
-    'type_filling': filling,
 }
-result = mt5.order_send(request)
-if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
-    msg = f"❌ Lỗi đặt lệnh: {result.comment if result else mt5.last_error()}"
+
+result = None
+used_filling_name = None
+last_error_msg = None
+for filling_name, filling in fill_candidates:
+    request = dict(base_request)
+    request['type_filling'] = filling
+    test_result = mt5.order_send(request)
+    if test_result is not None and test_result.retcode == mt5.TRADE_RETCODE_DONE:
+        result = test_result
+        used_filling_name = filling_name
+        break
+    last_error_msg = test_result.comment if test_result else str(mt5.last_error())
+
+if result is None:
+    msg = f"❌ Lỗi đặt lệnh: {last_error_msg}"
 else:
+    print(f'🔧 Filling mode dùng thành công: {used_filling_name}')
     msg = f"✅ Đặt lệnh {action} thành công! Ticket: {result.order} | Giá: {price} | SL: {sl} | TP: {tp} | Lot: {volume} | Source: {source}"
     append_trade({
         'ticket': int(result.order),
