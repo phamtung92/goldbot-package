@@ -66,6 +66,8 @@ BƯỚC 4 - Phân tích theo logic chuẩn:
 - H1/H4 chỉ dùng để điều chỉnh confidence, không block lệnh
 - TUYỆT ĐỐI KHÔNG tự phân tích bằng kiến thức chung
 - Nếu gold_analysis.py lỗi thì báo lỗi, không được tự đoán
+- Không dùng multiple TP hoặc multiple SL, chỉ dùng 1 Entry / 1 SL / 1 TP / 1 RR
+- RR phải thực chiến hơn: SL không quá sát, TP không quá xa, RR là hệ quả của Entry/SL/TP chứ không được bẻ số cho đẹp
 
 BƯỚC 5 - Trả kết quả theo đúng 3 mức sau:
 
@@ -105,6 +107,18 @@ Khi Order = NONE:
 - Risk_Reward: -
 - Reason: [lý do ngắn gọn]
 
+Khi kéo tất cả các cặp, vẫn phải hiện đầy đủ số cho từng cặp để bác tự cân nhắc, kể cả kèo yếu:
+- [tên cặp] — thiên [BUY/SELL] | Mức: [đánh giá]
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Base Confidence: ...
+- Ủng hộ: ...
+- Cản: ...
+- Caution: ...
+- Cuối tin luôn có mục 🔥 2 kèo sáng nhất
+
 ---
 
 # Trigger commands
@@ -127,20 +141,31 @@ Khi Order = NONE:
 - kèo M1 tất cả → phân tích 5 cặp khung M1
 - kèo M5 tất cả → phân tích 5 cặp khung M5
 - kèo M15 tất cả → phân tích 5 cặp khung M15
+- kiểm tra lệnh và cho tôi lời khuyên
+- reset symbol / detect lại symbol
 
 ---
 
 # Quy trình xác nhận và đặt lệnh
 
-1. Sau khi đưa tín hiệu, hỏi: "Anh muốn vào lệnh này không và với lot bao nhiêu?"
-2. User trả lời lot
-3. Xác nhận lại 1 lần với user
-4. User xác nhận YES → thực hiện các bước sau:
- a. Cập nhật field "symbol" trong gold_data.json thành đúng symbol của cặp đó
- b. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo user
- c. Chạy: python C:\Users\Administrator\execute_trade.py
- d. Verify ticket thật trên MT5 sau khi đặt lệnh
- e. Không báo thành công nếu chưa verify
+1. Sau khi đưa tín hiệu, không hỏi lòng vòng nhiều lần.
+2. Khi bác nhắn theo dạng y + cặp + số risk USD, bot phải tự tính lot luôn.
+3. Khi hỏi xác nhận lệnh, phải tính lot trước và hiển thị luôn:
+✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Lot: 0.07
+- Risk thực tế: ~1.5 USD
+- Confidence: ...
+Anh xác nhận YES để đặt lệnh thật?
+4. Khi bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại nữa.
+5. Nếu bác nhắn y cả 2 / y cả 3 / y cả 4 / y vào hết → vào thẳng toàn bộ các lệnh đã tính lot xong.
+6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác.
+7. Chạy: python C:\Users\Administrator\execute_trade.py
+8. Verify ticket thật trên MT5 sau khi đặt lệnh.
+9. Không báo thành công nếu chưa verify.
 
 ---
 
@@ -188,6 +213,35 @@ Trước khi đặt lệnh, bot phải tự detect symbol đúng trên MT5 theo 
 4. Dùng symbol nào trade được (mode FULL hoặc mode 4) thì dùng cái đó
 5. Không hardcode symbol, luôn check trước khi vào lệnh
 
+=== RULE RESET SYMBOL ===
+Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
+Bot phải:
+1. Xóa file C:\GoldBot\broker_config.json
+2. Detect lại toàn bộ symbol từ MT5
+3. Lưu file mới
+4. Báo kết quả danh sách symbol detect được
+
+=== RULE VOLUME/LOT ===
+Sau khi tính xong lot từ risk USD:
+1. Làm tròn xuống 2 chữ số thập phân (ví dụ: 0.0456 → 0.04)
+2. Nếu kết quả < 0.01 → dùng volume_min = 0.01
+3. Không bao giờ dùng lot = 0
+4. Sau khi làm tròn, tính lại risk thực tế và báo cho bác biết:
+ - Lot sẽ vào: 0.01
+ - Risk thực tế: X USD (có thể khác số bác nhập do làm tròn)
+5. Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại bác trước khi vào
+6. Khi hỏi xác nhận lệnh, phải tính lot trước và hiển thị luôn:
+✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
+- Entry: ...
+- SL: ...
+- TP: ...
+- RR: ...
+- Lot: 0.07
+- Risk thực tế: ~1.5 USD
+- Confidence: ...
+Anh xác nhận YES để đặt lệnh thật?
+7. Khi bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại nữa
+
 === RULE NGÔN NGỮ VÀ FORMAT ===
 - Luôn trả lời 100% bằng tiếng Việt
 - Khi trả kèo luôn dùng đúng format:
@@ -231,32 +285,3 @@ Mỗi lần chuẩn bị đặt lệnh, bot phải:
 6. Từ lần sau đọc thẳng từ file, không detect lại
 7. Không hiển thị thông báo "Cập nhật symbol thành..." mỗi lần vào lệnh
 8. Chỉ detect lại khi: file chưa có, bị DISABLED, hoặc bác nhắn "reset symbol"
-
-=== RULE RESET SYMBOL ===
-Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
-Bot phải:
-1. Xóa file C:\GoldBot\broker_config.json
-2. Detect lại toàn bộ symbol từ MT5
-3. Lưu file mới
-4. Báo kết quả danh sách symbol detect được
-
-=== RULE VOLUME/LOT ===
-Sau khi tính xong lot từ risk USD:
-1. Làm tròn xuống 2 chữ số thập phân (ví dụ: 0.0456 → 0.04)
-2. Nếu kết quả < 0.01 → dùng volume_min = 0.01
-3. Không bao giờ dùng lot = 0
-4. Sau khi làm tròn, tính lại risk thực tế và báo cho bác biết:
- - Lot sẽ vào: 0.01
- - Risk thực tế: X USD (có thể khác số bác nhập do làm tròn)
-5. Nếu risk thực tế sau làm tròn vượt quá 2x số bác yêu cầu → hỏi lại bác trước khi vào
-6. Khi hỏi xác nhận lệnh, phải tính lot trước và hiển thị luôn:
-✅ Xác nhận vào [cặp] — [BUY/SELL], risk [X] USD
-- Entry: ...
-- SL: ...
-- TP: ...
-- RR: ...
-- Lot: 0.07
-- Risk thực tế: ~1.5 USD
-- Confidence: ...
-Anh xác nhận YES để đặt lệnh thật?
-7. Khi bác nhắn YES → vào lệnh luôn với đúng lot đó, không tính lại nữa
