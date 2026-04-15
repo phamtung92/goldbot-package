@@ -136,6 +136,11 @@ Anh xác nhận YES để đặt lệnh thật?
 
 5. Bác nhắn YES → vào lệnh luôn với đúng lot đó, KHÔNG tính lại
 6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác
+7. Bước 7a: Ghi last_confirmed_signal vào gold_data.json trước khi chạy script:
+- Đọc file gold_data.json
+- Thêm/cập nhật key "last_confirmed_signal" với: action, symbol, entry, sl, tp, lot
+- Lưu file lại
+- Sau đó mới chạy execute_trade.py
 7. Chạy: python C:\Users\Administrator\execute_trade.py
 8. Verify ticket thật trên MT5 sau khi đặt lệnh
 9. Không báo thành công nếu chưa verify
