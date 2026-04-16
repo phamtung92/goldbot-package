@@ -285,9 +285,9 @@ Khi bác nhắn: "kiểm tra lệnh và cho tôi lời khuyên"
 - "dời TP [ticket] [giá]" → dời TP đúng ticket
 
 ## Quy trình thực hiện:
-1. Xác định ticket từ lệnh bác nhắn (đọc lệnh đang mở nếu cần)
-2. Hỏi xác nhận: "Xác nhận [hành động] ticket [X] [symbol]?"
-3. Bác nhắn YES → ghi lệnh vào gold_data.json rồi chạy script:
+1. Tự đọc lệnh đang mở từ MT5 để tìm đúng ticket — KHÔNG hỏi bác ticket
+2. KHÔNG hỏi xác nhận YES/NO — đóng lệnh NGAY LẬP TỨC
+3. Ghi lệnh vào gold_data.json rồi chạy script:
 
 Với đóng lệnh - ghi close_command:
 {
