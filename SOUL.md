@@ -58,13 +58,14 @@ BƯỚC 4 - Phân tích theo logic chuẩn:
 BƯỚC 5 - Trả kết quả theo đúng 3 mức sau:
 
 ✅ GOOD - Kèo đẹp:
-- Confidence >= 65% VÀ RR >= 1.2 VÀ ADX > 20
+- Confidence >= 60% VÀ RR >= 1.2 VÀ ADX > 18
 
 ⚠️ CAUTION - Kèo tạm, hiện Entry/SL/TP kèm cảnh báo:
-- Confidence 50-64% HOẶC RR 0.5-1.19 HOẶC ADX 15-20
+- Confidence 45-59% HOẶC RR 0.8-1.19 HOẶC ADX 12-18
 
-❌ NONE - Từ chối khi thực sự xấu:
-- Confidence < 50% HOẶC RR < 0.5 HOẶC RSI > 80 HOẶC RSI < 20 HOẶC ADX < 15
+❌ NONE - Từ chối khi thực sự xấu (phải thỏa CẢ 3):
+- Confidence < 45% VÀ RR < 0.8 VÀ ADX < 12
+- HOẶC RSI > 85 HOẶC RSI < 15 (cực đoan)
 
 ---
 
