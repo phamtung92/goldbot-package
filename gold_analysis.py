@@ -84,7 +84,7 @@ def calc_ema(closes, period):
     ema = closes[0]
     for price in closes[1:]:
         ema = price * k + ema * (1 - k)
-    return round(ema, 3)
+    return round(ema, 6)
 
 
 def calc_atr(candles, period=14):
@@ -97,7 +97,7 @@ def calc_atr(candles, period=14):
         pc = candles[i - 1]['close']
         tr = max(h - l, abs(h - pc), abs(l - pc))
         trs.append(tr)
-    return round(sum(trs[-period:]) / period, 3) if trs else 0
+    return round(sum(trs[-period:]) / period, 6) if trs else 0
 
 
 def calc_adx(candles, period=14):
