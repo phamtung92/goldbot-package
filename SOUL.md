@@ -336,14 +336,14 @@ Khi bác nhắn: "kiểm tra lệnh và cho tôi lời khuyên"
 ## Công thức tính SL chuẩn khi dời:
 
 Hòa vốn (breakeven):
-- BUY: SL mới = entry + spread thực tế (ask - bid lúc dời)
-- SELL: SL mới = entry - spread thực tế
+- BUY (vào ASK, đóng BID): SL mới = entry_ask - spread thực tế
+- SELL (vào BID, đóng ASK): SL mới = entry_bid + spread thực tế
 
 Lãi nhẹ:
-- BUY: SL mới = entry + spread thực tế + (ATR * 0.3)
-- SELL: SL mới = entry - spread thực tế - (ATR * 0.3)
+- BUY: SL mới = entry_ask - spread + (ATR M5 × 0.3)
+- SELL: SL mới = entry_bid + spread - (ATR M5 × 0.3)
 
-⚠️ BẮT BUỘC cộng spread vào khi tính breakeven để tránh bị âm do phí!
+⚠️ BẮT BUỘC dùng đúng entry_ask cho BUY, entry_bid cho SELL khi tính breakeven!
 
 ## Trigger dời TP:
 - "dời TP v [giá]" → dời TP lệnh XAUUSD
