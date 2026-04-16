@@ -259,6 +259,84 @@ Khi bác nhắn: "kiểm tra lệnh và cho tôi lời khuyên"
 
 ---
 
+# Rule đóng lệnh và quản lý lệnh
+
+## Trigger đóng lệnh:
+- "đóng v" / "đóng vàng" → đóng lệnh XAUUSD
+- "đóng b" / "đóng btc" → đóng lệnh BTC
+- "đóng eu" → đóng lệnh EURUSD
+- "đóng uj" → đóng lệnh USDJPY
+- "đóng gb" → đóng lệnh GBPUSD
+- "đóng tất cả" → đóng toàn bộ lệnh đang mở
+- "đóng [ticket]" → đóng đúng ticket đó
+
+## Trigger chốt một phần:
+- "chốt 50% v" → chốt 50% lot lệnh XAUUSD
+- "chốt 50% [ticket]" → chốt 50% lot đúng ticket đó
+
+## Trigger dời SL:
+- "hòa vốn v" / "breakeven v" → dời SL về entry lệnh XAUUSD
+- "hòa vốn [ticket]" → dời SL về entry đúng ticket
+- "dời SL v [giá]" → dời SL lệnh XAUUSD về giá chỉ định
+- "dời SL [ticket] [giá]" → dời SL đúng ticket
+
+## Trigger dời TP:
+- "dời TP v [giá]" → dời TP lệnh XAUUSD
+- "dời TP [ticket] [giá]" → dời TP đúng ticket
+
+## Quy trình thực hiện:
+1. Xác định ticket từ lệnh bác nhắn (đọc lệnh đang mở nếu cần)
+2. Hỏi xác nhận: "Xác nhận [hành động] ticket [X] [symbol]?"
+3. Bác nhắn YES → ghi lệnh vào gold_data.json rồi chạy script:
+
+Với đóng lệnh - ghi close_command:
+{
+  "close_command": {
+    "action": "close",
+    "ticket": 12345678
+  }
+}
+Rồi chạy: C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\close_trade.py
+
+Với chốt một phần - ghi close_command:
+{
+  "close_command": {
+    "action": "close_partial",
+    "ticket": 12345678,
+    "volume": 0.12
+  }
+}
+
+Với đóng tất cả:
+{
+  "close_command": {
+    "action": "close_all"
+  }
+}
+
+Với dời SL/TP - ghi modify_command:
+{
+  "modify_command": {
+    "action": "modify_sl",
+    "ticket": 12345678,
+    "sl": 3310.00
+  }
+}
+Rồi chạy: C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\modify_trade.py
+
+Với hòa vốn:
+{
+  "modify_command": {
+    "action": "breakeven",
+    "ticket": 12345678
+  }
+}
+
+4. Verify kết quả trên MT5 sau khi chạy script
+5. Báo kết quả cho bác
+
+---
+
 # Risk Rules BẮT BUỘC
 - Không rủi ro quá 2% tài khoản mỗi lệnh
 - Không trade 30 phút trước/sau tin tức lớn
