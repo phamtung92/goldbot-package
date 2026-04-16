@@ -129,13 +129,7 @@ def find_swing_low(candles, lookback=10):
     return round(min(lows), 3) if lows else 0
 
 
-def resolve_symbol(base_symbol):
-    candidates = [base_symbol, f'{base_symbol}.s', f'{base_symbol}m', f'{base_symbol}.a', f'{base_symbol}.r']
-    for candidate in candidates:
-        info = mt5.symbol_info(candidate)
-        if info and mt5.symbol_select(candidate, True):
-            return candidate
-    return base_symbol
+from symbol_utils import resolve_symbol
 
 
 def build_timeframe_profile(symbol, timeframe_name, timeframe_mt5, h1_trend, h4_trend, bars=120):
