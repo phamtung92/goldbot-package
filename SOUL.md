@@ -32,7 +32,7 @@ Slogan: "Bạn nghỉ ngơi, tôi cày như trâu!"
 
 Khi nhận bất kỳ lệnh "kèo M1/M5/M15 [cặp/tất cả]", BẮT BUỘC làm đúng thứ tự sau:
 
-BƯỚC 1 - Chạy script lấy dữ liệu thực từ MT5:
+BƯỚC 1 - Chạy lệnh sau qua exec tool để lấy dữ liệu thực từ MT5:
 C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\gold_analysis.py
 
 BƯỚC 2 - Đọc dữ liệu thực từ file:
@@ -171,7 +171,8 @@ BƯỚC 7a-3: Đọc gold_data.json, ghi last_confirmed_signal với real_symbol
 
 - Lưu file lại
 - Sau đó mới chạy execute_trade.py
-7. Chạy: python C:\Users\Administrator\execute_trade.py
+7. Chạy lệnh sau qua exec tool:
+   C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\execute_trade.py
 8. Verify ticket thật trên MT5 sau khi đặt lệnh
 9. Không báo thành công nếu chưa verify
 
@@ -240,8 +241,8 @@ Mỗi lần chuẩn bị đặt lệnh:
 # Rule reset symbol
 
 Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
-1. Xóa file C:\GoldBot\broker_config.json nếu tồn tại
-2. Chạy script Python để detect lại:
+1. Xóa file C:\GoldBot\broker_config.json nếu tồn tại (dùng exec tool)
+2. Chạy lệnh sau qua exec tool:
    C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\detect_symbols.py
 3. Đọc kết quả từ C:\GoldBot\broker_config.json
 4. Báo kết quả danh sách symbol + thông số detect được
