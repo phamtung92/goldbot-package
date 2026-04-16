@@ -42,8 +42,11 @@ def resolve_symbol(base_symbol: str):
             info = mt5.symbol_info(candidate)
             if info and mt5.symbol_select(candidate, True):
                 tick = mt5.symbol_info_tick(candidate)
-                if tick is not None and (getattr(tick, 'bid', 0) or getattr(tick, 'ask', 0)):
-                    return candidate
+                if tick is not None:
+                    bid = getattr(tick, 'bid', 0)
+                    ask = getattr(tick, 'ask', 0)
+                    if bid > 0 and ask > 0 and ask > bid:
+                        return candidate
         except Exception:
             pass
     return None
