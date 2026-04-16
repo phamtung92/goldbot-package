@@ -1,6 +1,6 @@
 import MetaTrader5 as mt5
 
-COMMON_SUFFIXES = ["", ".s", "m", ".a", ".r", "_i", ".i", "pro", ".pro"]
+COMMON_SUFFIXES = [".s", "", "m", ".a", ".r", "_i", ".i", "pro", ".pro"]
 BASE_ALIASES = {
     "XAUUSD": ["XAUUSD", "GOLD"],
     "BTCUSD": ["BTCUSD", "BTCUSDT", "XBTUSD"],
