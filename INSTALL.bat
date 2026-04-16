@@ -14,7 +14,7 @@ copy /Y "C:\GoldBot\detect_symbols.py" "C:\Users\Administrator\detect_symbols.py
 copy /Y "C:\GoldBot\gold_trade_logger.py" "C:\Users\Administrator\gold_trade_logger.py"
 
 REM 3. Patch openclaw.json - thêm exec permission (không đụng token/apikey)
-powershell -Command " $path = 'C:\Users\Administrator\.openclaw\openclaw.json'; $content = Get-Content $path -Raw; if ($content -notmatch '\"exec\"') { $content = $content -replace '\"profile\": \"coding\"', '\"profile\": \"coding\",' + [Environment]::NewLine + '    \"exec\": { \"host\": \"gateway\" }'; Set-Content $path $content -Encoding UTF8; echo 'Patched exec permission OK'; } else { echo 'exec permission da co san'; }"
+powershell -Command "$p='C:\Users\Administrator\.openclaw\openclaw.json'; $c=[IO.File]::ReadAllText($p); if($c -notmatch 'exec'){$c=$c.Replace('\"profile\": \"coding\"','\"profile\": \"coding\",' + \"`r`n    \" + '\"exec\": {\"host\": \"gateway\"}'); [IO.File]::WriteAllText($p,$c); Write-Host 'Patched OK'} else {Write-Host 'exec da co san'}"
 
 echo === Xong! Restart OpenClaw roi test: keo M15 vang ===
 pause
