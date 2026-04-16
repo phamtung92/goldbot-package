@@ -19,13 +19,15 @@ Giá trị hiện tại:
 - BTCUSD: tick_value=0.01, tick_size=0.01
 
 ## Rule 2 — SL TỐI THIỂU:
-KHÔNG được đặt SL gần hơn mức này:
-- XAUUSD: tối thiểu 15 USD
-- EURUSD: tối thiểu 20 pips (0.00020)
-- GBPUSD: tối thiểu 25 pips (0.00025)
-- USDJPY: tối thiểu 20 pips (0.020)
-- BTCUSD: tối thiểu 300 USD
-Nếu SL quá sát → TỪ CHỐI kèo ngay, không đặt lệnh.
+Chỉ từ chối khi SL **quá sát** (nhỏ hơn mức tối thiểu):
+- XAUUSD: SL cách entry tối thiểu 15 USD → từ chối nếu < 15 USD
+- EURUSD: SL cách entry tối thiểu 20 pips (0.00020) → từ chối nếu < 0.00020
+- GBPUSD: SL cách entry tối thiểu 25 pips (0.00025) → từ chối nếu < 0.00025
+- USDJPY: SL cách entry tối thiểu 20 pips (0.020) → từ chối nếu < 0.020
+- BTCUSD: SL cách entry tối thiểu 300 USD → từ chối nếu < 300 USD
+
+SL lớn hơn tối thiểu → BÌNH THƯỜNG, KHÔNG từ chối!
+Nếu SL quá sát (nhỏ hơn tối thiểu) → TỪ CHỐI kèo ngay, không đặt lệnh.
 
 ---
 
