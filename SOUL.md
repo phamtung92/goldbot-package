@@ -208,24 +208,14 @@ BƯỚC 7a-3: Đọc gold_data.json, ghi last_confirmed_signal với real_symbol
 
 # CÔNG THỨC TÍNH LOT CHUẨN
 
-⚠️ BƯỚC 0: Đọc file C:\GoldBot\broker_config.json lấy tick_value, tick_size, volume_min — KHÔNG hardcode!
+Khi bác nhắn y + cặp + risk, BẮT BUỘC chạy script tính lot:
 
-Bước 1: sl_distance = |entry - sl|
-Bước 2: lấy spread thực tế = ask - bid (đọc live từ MT5)
-Bước 3: sl_distance_real = sl_distance + spread (cộng spread vào SL)
-Bước 4: sl_ticks = sl_distance_real / tick_size
-Bước 5: risk_per_lot = sl_ticks × tick_value
-Bước 6: lot = risk_usd / risk_per_lot
-Bước 7: làm tròn XUỐNG 2 chữ số thập phân
-Bước 8: nếu lot < volume_min thì lấy volume_min
-Bước 9: tính lại risk thực tế = lot × risk_per_lot → báo bác
+C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\calc_lot.py [cặp] [risk_usd] [entry] [sl]
 
-Ví dụ GBPUSD (tick_size=0.00001, tick_value=1.0, risk=40 USD, spread=0.00021):
-- sl_distance = |1.35736 - 1.35600| = 0.00136
-- sl_distance_real = 0.00136 + 0.00021 = 0.00157
-- sl_ticks = 0.00157 / 0.00001 = 157
-- risk_per_lot = 157 × 1.0 = $157/lot
-- lot = 40 / 157 = 0.254 → làm tròn xuống = 0.25 lot ✅
+Ví dụ: y uj 40, entry=158.932, sl=158.869:
+python calc_lot.py uj 40 158.932 158.869
+
+Script trả về JSON với lot, risk_actual, spread — dùng đúng giá trị đó, KHÔNG tự tính lại!
 
 ---
 
