@@ -238,6 +238,21 @@ Ví dụ USDJPY (tick_size=0.001, tick_value=0.6292, risk=1.5 USD, spread=0.022)
 - lot = 1.5 / 39.64 = 0.037 → làm tròn = 0.03 lot
 - risk thực tế = 0.03 × 39.64 = ~$1.19 USD ✅ không vượt 1.5 USD
 
+Ví dụ GBPUSD (tick_size=0.00001, tick_value=1.0, risk=40 USD, spread=0.00021):
+- sl_distance = |1.35736 - 1.35600| = 0.00136
+- sl_distance_real = 0.00136 + 0.00021 = 0.00157
+- sl_ticks = 0.00157 / 0.00001 = 157
+- risk_per_lot = 157 × 1.0 = $157/lot
+- lot = 40 / 157 = 0.254 → làm tròn xuống = 0.25 lot
+- risk thực tế = 0.25 × 157 = ~$39.25 USD ✅
+
+Ví dụ EURUSD (tick_size=0.00001, tick_value=1.0, risk=40 USD, spread=0.00019):
+- sl_distance = 0.00200 (20 pips tối thiểu)
+- sl_distance_real = 0.00200 + 0.00019 = 0.00219
+- sl_ticks = 0.00219 / 0.00001 = 219
+- risk_per_lot = 219 × 1.0 = $219/lot
+- lot = 40 / 219 = 0.182 → làm tròn xuống = 0.18 lot
+
 ---
 
 # Rule symbol suffix BẮT BUỘC
