@@ -137,16 +137,26 @@ Anh xác nhận YES để đặt lệnh thật?
 5. Bác nhắn YES → vào lệnh luôn với đúng lot đó, KHÔNG tính lại
 6. Re-check giá hiện tại, nếu price drift làm hỏng cấu trúc SL/TP → hủy, báo bác
 7. Bước 7a: Ghi last_confirmed_signal vào gold_data.json trước khi chạy script:
-- Đọc file gold_data.json
-- Thêm/cập nhật key "last_confirmed_signal" với format:
 
-⚠️ BẮT BUỘC: field "symbol" PHẢI là cặp bác vừa xác nhận, KHÔNG PHẢI lấy từ root gold_data.json (root luôn là XAUUSD, gây vào nhầm lệnh!)
+BƯỚC 7a-1: Mapping cặp từ lệnh bác nhắn:
+- y v → base = "XAUUSD"
+- y b → base = "BTCUSD"
+- y eu → base = "EURUSD"
+- y uj → base = "USDJPY"
+- y gb → base = "GBPUSD"
 
-Ví dụ đúng cho USDJPY:
+BƯỚC 7a-2: Đọc C:\GoldBot\broker_config.json lấy real_symbol:
+- Tìm key base ở trên trong symbols
+- Lấy giá trị "real_symbol" → đây mới là symbol dùng để ghi
+
+Ví dụ: y uj → base = USDJPY → broker_config["symbols"]["USDJPY"]["real_symbol"] = "USDJPY"
+Ví dụ: y v → base = XAUUSD → broker_config["symbols"]["XAUUSD"]["real_symbol"] = "XAUUSD.s"
+
+BƯỚC 7a-3: Đọc gold_data.json, ghi last_confirmed_signal với real_symbol vừa lấy:
 {
  "last_confirmed_signal": {
   "action": "BUY",
-  "symbol": "USDJPY",
+  "symbol": "USDJPY",      ← real_symbol từ broker_config.json, KHÔNG tự đặt tay
   "entry": 159.015,
   "sl": 158.930,
   "tp": 159.100,
@@ -154,24 +164,10 @@ Ví dụ đúng cho USDJPY:
  }
 }
 
-Ví dụ đúng cho XAUUSD:
-{
- "last_confirmed_signal": {
-  "action": "BUY",
-  "symbol": "XAUUSD",
-  "entry": 3320.00,
-  "sl": 3310.00,
-  "tp": 3335.00,
-  "lot": 0.04
- }
-}
-
-Quy tắc ghi symbol:
-- y v → symbol = "XAUUSD"
-- y b → symbol = "BTCUSD"
-- y eu → symbol = "EURUSD"
-- y uj → symbol = "USDJPY"
-- y gb → symbol = "GBPUSD"
+⚠️ TUYỆT ĐỐI KHÔNG:
+- Tự ghi symbol theo trí nhớ
+- Lấy symbol từ root gold_data.json (root luôn là XAUUSD)
+- Bỏ qua field symbol
 
 - Lưu file lại
 - Sau đó mới chạy execute_trade.py
