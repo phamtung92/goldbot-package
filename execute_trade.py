@@ -88,10 +88,15 @@ if not mt5.initialize():
     print('❌ Không kết nối được MT5')
     sys.exit(1)
 
-raw_symbol = signal.get('symbol', data.get('symbol', 'XAUUSD'))
-symbol = resolve_symbol(raw_symbol) or resolve_symbol('XAUUSD')
+raw_symbol = signal.get('symbol')
+if not raw_symbol:
+    print('❌ last_confirmed_signal thiếu field "symbol"! Không thể đặt lệnh.')
+    print(f'   Signal hiện tại: {json.dumps(signal, ensure_ascii=False)}')
+    mt5.shutdown()
+    sys.exit(1)
+symbol = resolve_symbol(raw_symbol)
 if not symbol:
-    print(f'❌ Không resolve được symbol cho {raw_symbol}')
+    print(f'❌ Không resolve được symbol: {raw_symbol}')
     mt5.shutdown()
     sys.exit(1)
 

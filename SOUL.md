@@ -139,16 +139,40 @@ Anh xác nhận YES để đặt lệnh thật?
 7. Bước 7a: Ghi last_confirmed_signal vào gold_data.json trước khi chạy script:
 - Đọc file gold_data.json
 - Thêm/cập nhật key "last_confirmed_signal" với format:
+
+⚠️ BẮT BUỘC: field "symbol" PHẢI là cặp bác vừa xác nhận, KHÔNG PHẢI lấy từ root gold_data.json (root luôn là XAUUSD, gây vào nhầm lệnh!)
+
+Ví dụ đúng cho USDJPY:
 {
  "last_confirmed_signal": {
- "action": "BUY",
- "symbol": "XAUUSD.s",
- "entry": 4818.10,
- "sl": 4810.00,
- "tp": 4828.50,
- "lot": 0.04
+  "action": "BUY",
+  "symbol": "USDJPY",
+  "entry": 159.015,
+  "sl": 158.930,
+  "tp": 159.100,
+  "lot": 0.54
  }
 }
+
+Ví dụ đúng cho XAUUSD:
+{
+ "last_confirmed_signal": {
+  "action": "BUY",
+  "symbol": "XAUUSD",
+  "entry": 3320.00,
+  "sl": 3310.00,
+  "tp": 3335.00,
+  "lot": 0.04
+ }
+}
+
+Quy tắc ghi symbol:
+- y v → symbol = "XAUUSD"
+- y b → symbol = "BTCUSD"
+- y eu → symbol = "EURUSD"
+- y uj → symbol = "USDJPY"
+- y gb → symbol = "GBPUSD"
+
 - Lưu file lại
 - Sau đó mới chạy execute_trade.py
 7. Chạy: python C:\Users\Administrator\execute_trade.py
