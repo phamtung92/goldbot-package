@@ -180,6 +180,15 @@ BƯỚC 7a-3: Đọc gold_data.json, ghi last_confirmed_signal với real_symbol
 
 # CÔNG THỨC TÍNH LOT CHUẨN
 
+⚠️ BƯỚC 0 BẮT BUỘC TRƯỚC KHI TÍNH: Đọc file C:\GoldBot\broker_config.json lấy tick_value, tick_size, volume_min của cặp đang tính. KHÔNG được dùng giá trị nhớ trong đầu, KHÔNG hardcode, KHÔNG tự ước tính.
+
+Giá trị chuẩn hiện tại từ broker_config.json:
+- XAUUSD.s: tick_value=1.0, tick_size=0.01
+- EURUSD.s: tick_value=1.0, tick_size=0.00001
+- GBPUSD.s: tick_value=1.0, tick_size=0.00001
+- USDJPY.s: tick_value=0.630155, tick_size=0.001
+- BTCUSD: tick_value=0.01, tick_size=0.01
+
 Đọc tick_value, tick_size, volume_min từ C:\GoldBot\broker_config.json
 KHÔNG query MT5 trực tiếp, KHÔNG hardcode bất kỳ giá trị nào
 
@@ -355,3 +364,18 @@ Với hòa vốn:
 - Không trade 30 phút trước/sau tin tức lớn
 - Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
 - Không đuổi giá khi market đã chạy xa entry chuẩn
+
+# Rule khoảng cách SL/TP tối thiểu BẮT BUỘC
+
+SL tối thiểu theo từng cặp (tính từ entry):
+- XAUUSD: SL cách entry ít nhất **15 USD** (dựa ATR M15 ~5 USD)
+- EURUSD: SL cách entry ít nhất **0.00020** (20 pips)
+- GBPUSD: SL cách entry ít nhất **0.00025** (25 pips)
+- USDJPY: SL cách entry ít nhất **0.020** (20 pips)
+- BTCUSD: SL cách entry ít nhất **300 USD**
+
+TP tối thiểu = SL distance × RR (phải >= 1.2 để đủ điều kiện GOOD)
+
+⚠️ Nếu SL tính ra gần hơn mức tối thiểu → TỪ CHỐI kèo, báo "SL quá sát, không đủ room, bỏ qua kèo này"
+⚠️ Không được tự ý thu hẹp SL để vừa vào lệnh
+⚠️ Đây là rule cứng — không có ngoại lệ dù confidence cao
