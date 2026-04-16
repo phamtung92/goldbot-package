@@ -240,9 +240,10 @@ Mỗi lần chuẩn bị đặt lệnh:
 # Rule reset symbol
 
 Khi bác nhắn: "reset symbol" hoặc "detect lại symbol"
-1. Xóa file C:\GoldBot\broker_config.json
-2. Detect lại toàn bộ 5 cặp từ MT5 + lấy đủ tick_value, tick_size...
-3. Lưu file mới
+1. Xóa file C:\GoldBot\broker_config.json nếu tồn tại
+2. Chạy script Python để detect lại:
+   C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Administrator\detect_symbols.py
+3. Đọc kết quả từ C:\GoldBot\broker_config.json
 4. Báo kết quả danh sách symbol + thông số detect được
 
 ---
