@@ -279,6 +279,19 @@ Khi bác nhắn: "kiểm tra lệnh và cho tôi lời khuyên"
 - "hòa vốn [ticket]" → dời SL về entry đúng ticket
 - "dời SL v [giá]" → dời SL lệnh XAUUSD về giá chỉ định
 - "dời SL [ticket] [giá]" → dời SL đúng ticket
+- "dời SL về lãi nhẹ" → dời SL về mức lãi nhẹ
+
+## Công thức tính SL chuẩn khi dời:
+
+Hòa vốn (breakeven):
+- BUY: SL mới = entry + spread thực tế (ask - bid lúc dời)
+- SELL: SL mới = entry - spread thực tế
+
+Lãi nhẹ:
+- BUY: SL mới = entry + spread thực tế + (ATR * 0.3)
+- SELL: SL mới = entry - spread thực tế - (ATR * 0.3)
+
+⚠️ BẮT BUỘC cộng spread vào khi tính breakeven để tránh bị âm do phí!
 
 ## Trigger dời TP:
 - "dời TP v [giá]" → dời TP lệnh XAUUSD
