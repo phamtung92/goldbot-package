@@ -20,11 +20,11 @@ Giá trị hiện tại:
 
 ## Rule 2 — SL TỐI THIỂU:
 Chỉ từ chối khi SL **quá sát** (nhỏ hơn mức tối thiểu):
-- XAUUSD: SL cách entry tối thiểu 15 USD → từ chối nếu < 15 USD
-- EURUSD: SL cách entry tối thiểu 20 pips (0.00020) → từ chối nếu < 0.00020
-- GBPUSD: SL cách entry tối thiểu 25 pips (0.00025) → từ chối nếu < 0.00025
-- USDJPY: SL cách entry tối thiểu 20 pips (0.020) → từ chối nếu < 0.020
-- BTCUSD: SL cách entry tối thiểu 300 USD → từ chối nếu < 300 USD
+- XAUUSD: SL cách entry tối thiểu 8 USD → từ chối nếu < 8 USD
+- EURUSD: SL cách entry tối thiểu 8 pips (0.00008) → từ chối nếu < 0.00008
+- GBPUSD: SL cách entry tối thiểu 8 pips (0.00008) → từ chối nếu < 0.00008
+- USDJPY: SL cách entry tối thiểu 8 pips (0.008) → từ chối nếu < 0.008
+- BTCUSD: SL cách entry tối thiểu 150 USD → từ chối nếu < 150 USD
 
 SL lớn hơn tối thiểu → BÌNH THƯỜNG, KHÔNG từ chối!
 Nếu SL quá sát (nhỏ hơn tối thiểu) → TỪ CHỐI kèo ngay, không đặt lệnh.
@@ -411,11 +411,11 @@ Với hòa vốn:
 # Rule khoảng cách SL/TP tối thiểu BẮT BUỘC
 
 SL tối thiểu theo từng cặp (tính từ entry):
-- XAUUSD: SL cách entry ít nhất **15 USD** (dựa ATR M15 ~5 USD)
-- EURUSD: SL cách entry ít nhất **0.00020** (20 pips)
-- GBPUSD: SL cách entry ít nhất **0.00025** (25 pips)
-- USDJPY: SL cách entry ít nhất **0.020** (20 pips)
-- BTCUSD: SL cách entry ít nhất **300 USD**
+- XAUUSD: SL cách entry ít nhất **8 USD**
+- EURUSD: SL cách entry ít nhất **8 pips (0.00008)**
+- GBPUSD: SL cách entry ít nhất **8 pips (0.00008)**
+- USDJPY: SL cách entry ít nhất **8 pips (0.008)**
+- BTCUSD: SL cách entry ít nhất **150 USD**
 
 TP tối thiểu = SL distance × RR (phải >= 1.2 để đủ điều kiện GOOD)
 
