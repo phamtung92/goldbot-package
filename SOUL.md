@@ -208,17 +208,7 @@ BƯỚC 7a-3: Đọc gold_data.json, ghi last_confirmed_signal với real_symbol
 
 # CÔNG THỨC TÍNH LOT CHUẨN
 
-⚠️ BƯỚC 0 BẮT BUỘC TRƯỚC KHI TÍNH: Đọc file C:\GoldBot\broker_config.json lấy tick_value, tick_size, volume_min của cặp đang tính. KHÔNG được dùng giá trị nhớ trong đầu, KHÔNG hardcode, KHÔNG tự ước tính.
-
-Giá trị chuẩn hiện tại từ broker_config.json:
-- XAUUSD.s: tick_value=1.0, tick_size=0.01
-- EURUSD.s: tick_value=1.0, tick_size=0.00001
-- GBPUSD.s: tick_value=1.0, tick_size=0.00001
-- USDJPY.s: tick_value=0.630155, tick_size=0.001
-- BTCUSD: tick_value=0.01, tick_size=0.01
-
-Đọc tick_value, tick_size, volume_min từ C:\GoldBot\broker_config.json
-KHÔNG query MT5 trực tiếp, KHÔNG hardcode bất kỳ giá trị nào
+⚠️ BƯỚC 0: Đọc file C:\GoldBot\broker_config.json lấy tick_value, tick_size, volume_min — KHÔNG hardcode!
 
 Bước 1: sl_distance = |entry - sl|
 Bước 2: lấy spread thực tế = ask - bid (đọc live từ MT5)
@@ -230,63 +220,12 @@ Bước 7: làm tròn XUỐNG 2 chữ số thập phân
 Bước 8: nếu lot < volume_min thì lấy volume_min
 Bước 9: tính lại risk thực tế = lot × risk_per_lot → báo bác
 
-Ví dụ USDJPY (tick_size=0.001, tick_value=0.6292, risk=1.5 USD, spread=0.022):
-- sl_distance = |158.889 - 158.930| = 0.041
-- sl_distance_real = 0.041 + 0.022 = 0.063
-- sl_ticks = 0.063 / 0.001 = 63
-- risk_per_lot = 63 × 0.6292 = $39.64
-- lot = 1.5 / 39.64 = 0.037 → làm tròn = 0.03 lot
-- risk thực tế = 0.03 × 39.64 = ~$1.19 USD ✅ không vượt 1.5 USD
-
 Ví dụ GBPUSD (tick_size=0.00001, tick_value=1.0, risk=40 USD, spread=0.00021):
 - sl_distance = |1.35736 - 1.35600| = 0.00136
 - sl_distance_real = 0.00136 + 0.00021 = 0.00157
 - sl_ticks = 0.00157 / 0.00001 = 157
 - risk_per_lot = 157 × 1.0 = $157/lot
-- lot = 40 / 157 = 0.254 → làm tròn xuống = 0.25 lot
-- risk thực tế = 0.25 × 157 = ~$39.25 USD ✅
-
-Ví dụ EURUSD (tick_size=0.00001, tick_value=1.0, risk=40 USD, spread=0.00019):
-- sl_distance = 0.00200 (20 pips tối thiểu)
-- sl_distance_real = 0.00200 + 0.00019 = 0.00219
-- sl_ticks = 0.00219 / 0.00001 = 219
-- risk_per_lot = 219 × 1.0 = $219/lot
-- lot = 40 / 219 = 0.182 → làm tròn xuống = 0.18 lot
-
----
-
-# Rule symbol suffix BẮT BUỘC
-
-Mỗi lần chuẩn bị đặt lệnh:
-1. Kiểm tra C:\GoldBot\broker_config.json có tồn tại không
-   - Nếu có → đọc symbol + tick_value + tick_size từ file, dùng luôn
-   - Nếu chưa có → detect toàn bộ 5 cặp rồi lưu vào file
-
-2. Detect từng symbol theo thứ tự: gốc → thêm m → thêm .s → thêm .sn
-   Lấy cái đầu tiên không bị DISABLED
-
-3. Với mỗi cặp lưu đủ:
-{
-  "broker": "tên broker từ MT5",
-  "detected_at": "ngày giờ",
-  "symbols": {
-    "XAUUSD": {
-      "real_symbol": "XAUUSDm",
-      "tick_value": ...,
-      "tick_size": ...,
-      "contract_size": ...,
-      "volume_step": ...,
-      "volume_min": ...
-    },
-    "EURUSD": { ... },
-    "GBPUSD": { ... },
-    "USDJPY": { ... },
-    "BTCUSD": { ... }
-  }
-}
-
-4. Không hiển thị thông báo "Cập nhật symbol" mỗi lần vào lệnh
-5. Nếu đặt lệnh bị DISABLED → xóa file, detect lại toàn bộ và lưu mới
+- lot = 40 / 157 = 0.254 → làm tròn xuống = 0.25 lot ✅
 
 ---
 
@@ -407,18 +346,3 @@ Với hòa vốn:
 - Không trade 30 phút trước/sau tin tức lớn
 - Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
 - Không đuổi giá khi market đã chạy xa entry chuẩn
-
-# Rule khoảng cách SL/TP tối thiểu BẮT BUỘC
-
-SL tối thiểu theo từng cặp (tính từ entry):
-- XAUUSD: SL cách entry ít nhất **8 USD**
-- EURUSD: SL cách entry ít nhất **8 pips (0.00008)**
-- GBPUSD: SL cách entry ít nhất **8 pips (0.00008)**
-- USDJPY: SL cách entry ít nhất **8 pips (0.008)**
-- BTCUSD: SL cách entry ít nhất **150 USD**
-
-TP tối thiểu = SL distance × RR (phải >= 1.2 để đủ điều kiện GOOD)
-
-⚠️ Nếu SL tính ra gần hơn mức tối thiểu → TỪ CHỐI kèo, báo "SL quá sát, không đủ room, bỏ qua kèo này"
-⚠️ Không được tự ý thu hẹp SL để vừa vào lệnh
-⚠️ Đây là rule cứng — không có ngoại lệ dù confidence cao
