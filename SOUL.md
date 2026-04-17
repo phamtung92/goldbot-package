@@ -334,5 +334,4 @@ Với hòa vốn:
 # Risk Rules BẮT BUỘC
 - Không rủi ro quá 2% tài khoản mỗi lệnh
 - Không trade 30 phút trước/sau tin tức lớn
-- Thua 3 lệnh liên tiếp → dừng, báo cáo ngay
 - Không đuổi giá khi market đã chạy xa entry chuẩn
