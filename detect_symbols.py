@@ -17,6 +17,8 @@ BASE_PAIRS = {
     'GBPUSD': ['GBPUSD'],
     'USDJPY': ['USDJPY'],
     'BTCUSD': ['BTCUSD', 'BTCUSDT', 'XBTUSD'],
+    'UKOIL': ['UKOUSDft', 'UKOUSD', 'UKOIL', 'BCO', 'BRENT'],
+    'XAGUSD': ['XAGUSD', 'SILVER', 'XAG'],
 }
 
 

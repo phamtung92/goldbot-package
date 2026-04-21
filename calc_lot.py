@@ -16,11 +16,15 @@ PAIR_MAP = {
     'eu': 'EURUSD',
     'uj': 'USDJPY',
     'gb': 'GBPUSD',
+    'ou': 'UKOIL',
     'XAUUSD': 'XAUUSD',
     'BTCUSD': 'BTCUSD',
     'EURUSD': 'EURUSD',
     'USDJPY': 'USDJPY',
     'GBPUSD': 'GBPUSD',
+    'UKOIL': 'UKOIL',
+    'ag': 'XAGUSD',
+    'XAGUSD': 'XAGUSD',
 }
 
 

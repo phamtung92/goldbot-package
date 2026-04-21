@@ -7,6 +7,8 @@ BASE_ALIASES = {
     "EURUSD": ["EURUSD"],
     "GBPUSD": ["GBPUSD"],
     "USDJPY": ["USDJPY"],
+    "UKOIL": ["UKOUSDft", "UKOUSD", "CL-OIL", "UKOIL", "BCO", "BRENT"],
+    "XAGUSD": ["XAGUSD", "SILVER", "XAG"],
 }
 
 

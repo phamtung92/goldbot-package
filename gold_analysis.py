@@ -129,7 +129,98 @@ def find_swing_low(candles, lookback=10):
     return round(min(lows), 3) if lows else 0
 
 
+def build_timeframe_profile_btc(symbol, timeframe_name, timeframe_mt5, h1_trend, h4_trend, bars=120):
+    """Profile riêng cho BTC: lookback dài hơn, ngưỡng ADX cao hơn"""
+    candles = get_candles(symbol, timeframe_mt5, bars)
+    if len(candles) < 20:
+        return {
+            'ema34': 0, 'ema89': 0, 'rsi': 0, 'atr': 0, 'adx': 0,
+            'swing_high': 0, 'swing_low': 0,
+            'trend_h1': h1_trend, 'trend_h4': h4_trend,
+            'trend': 'UNKNOWN', 'volume_ratio': 1.0,
+            'error': 'NOT_ENOUGH_DATA'
+        }
+
+    closes = [c['close'] for c in candles]
+    ema34 = calc_ema(closes, 34)
+    ema89 = calc_ema(closes, 89)
+    # BTC dùng lookback 25 nến thay vì 10 để tránh noise
+    swing_high = find_swing_high(candles, 25)
+    swing_low = find_swing_low(candles, 25)
+    current_close = closes[-1]
+    trend = 'UPTREND' if ema34 > ema89 else 'DOWNTREND'
+
+    price_range = swing_high - swing_low
+    price_from_low = (current_close - swing_low) / price_range if price_range > 0 else 0.5
+
+    in_pullback_sell = trend == 'DOWNTREND' and price_from_low > 0.6
+    in_pullback_buy = trend == 'UPTREND' and price_from_low < 0.4
+
+    adx = calc_adx(candles, 14)
+    # BTC cần ADX > 25 mới đủ trend mạnh
+    btc_adx_weak = adx < 25
+
+    return {
+        'ema34': ema34,
+        'ema89': ema89,
+        'rsi': calc_rsi(closes),
+        'atr': calc_atr(candles, 14),
+        'adx': adx,
+        'swing_high': swing_high,
+        'swing_low': swing_low,
+        'trend_h1': h1_trend,
+        'trend_h4': h4_trend,
+        'trend': trend,
+        'volume_ratio': calc_volume_ratio(candles),
+        'price_from_low': round(price_from_low, 2),
+        'in_pullback_sell': in_pullback_sell,
+        'in_pullback_buy': in_pullback_buy,
+        'btc_adx_weak': btc_adx_weak,
+    }
+
 from symbol_utils import resolve_symbol
+
+
+def calc_volume_ratio(candles, period=20):
+    """Tỷ lệ volume nến hiện tại so với trung bình — phát hiện breakout có volume"""
+    if len(candles) < period + 1:
+        return 1.0
+    volumes = [c['tick_volume'] for c in candles]
+    avg_vol = sum(volumes[-period-1:-1]) / period
+    current_vol = volumes[-1]
+    if avg_vol == 0:
+        return 1.0
+    return round(current_vol / avg_vol, 2)
+
+
+def get_key_levels(symbol):
+    """Lấy daily/weekly high-low làm key levels cho TP target"""
+    try:
+        daily = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, 0, 10)
+        if daily is None or len(daily) < 2:
+            return {}
+        today_high = round(float(daily[-1]['high']), 5)
+        today_low = round(float(daily[-1]['low']), 5)
+        prev_day_high = round(float(daily[-2]['high']), 5)
+        prev_day_low = round(float(daily[-2]['low']), 5)
+
+        weekly = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_W1, 0, 4)
+        if weekly is None or len(weekly) < 2:
+            prev_week_high = prev_week_low = 0
+        else:
+            prev_week_high = round(float(weekly[-2]['high']), 5)
+            prev_week_low = round(float(weekly[-2]['low']), 5)
+
+        return {
+            'today_high': today_high,
+            'today_low': today_low,
+            'prev_day_high': prev_day_high,
+            'prev_day_low': prev_day_low,
+            'prev_week_high': prev_week_high,
+            'prev_week_low': prev_week_low,
+        }
+    except Exception:
+        return {}
 
 
 def build_timeframe_profile(symbol, timeframe_name, timeframe_mt5, h1_trend, h4_trend, bars=120):
@@ -146,28 +237,59 @@ def build_timeframe_profile(symbol, timeframe_name, timeframe_mt5, h1_trend, h4_
             'trend_h1': h1_trend,
             'trend_h4': h4_trend,
             'trend': 'UNKNOWN',
+            'volume_ratio': 1.0,
             'error': 'NOT_ENOUGH_DATA'
         }
 
     closes = [c['close'] for c in candles]
     ema34 = calc_ema(closes, 34)
     ema89 = calc_ema(closes, 89)
+    swing_high = find_swing_high(candles, 10)
+    swing_low = find_swing_low(candles, 10)
+    current_close = closes[-1]
+    trend = 'UPTREND' if ema34 > ema89 else 'DOWNTREND'
+
+    # Phát hiện sóng hồi — cả 2 chiều
+    price_range = swing_high - swing_low
+    price_from_low = (current_close - swing_low) / price_range if price_range > 0 else 0.5
+
+    # DOWNTREND nhưng giá hồi lên cao → sóng hồi tăng, không nên SELL
+    in_pullback_sell = trend == 'DOWNTREND' and price_from_low > 0.6
+
+    # UPTREND nhưng giá hồi xuống thấp → sóng hồi giảm, không nên BUY
+    in_pullback_buy = trend == 'UPTREND' and price_from_low < 0.4
+
+    # Phát hiện overextended — giá chạy quá xa EMA34 (> 1.5x ATR)
+    atr_val = calc_atr(candles, 14)
+    dist_from_ema34 = abs(current_close - ema34)
+    overextended_threshold = 1.5 * atr_val if atr_val > 0 else 0
+    overextended_buy = (current_close < ema34 and dist_from_ema34 > overextended_threshold)
+    overextended_sell = (current_close > ema34 and dist_from_ema34 > overextended_threshold)
+
     return {
         'ema34': ema34,
         'ema89': ema89,
         'rsi': calc_rsi(closes),
-        'atr': calc_atr(candles, 14),
+        'atr': atr_val,
         'adx': calc_adx(candles, 14),
-        'swing_high': find_swing_high(candles, 10),
-        'swing_low': find_swing_low(candles, 10),
+        'swing_high': swing_high,
+        'swing_low': swing_low,
         'trend_h1': h1_trend,
         'trend_h4': h4_trend,
-        'trend': 'UPTREND' if ema34 > ema89 else 'DOWNTREND'
+        'trend': trend,
+        'volume_ratio': calc_volume_ratio(candles),
+        'price_from_low': round(price_from_low, 2),
+        'in_pullback_sell': in_pullback_sell,
+        'in_pullback_buy': in_pullback_buy,
+        'overextended_buy': overextended_buy,
+        'overextended_sell': overextended_sell,
     }
 
 
 def build_symbol_package(base_symbol, output_name=None):
     resolved = resolve_symbol(base_symbol)
+    if resolved:
+        mt5.symbol_select(resolved, True)
     tick = mt5.symbol_info_tick(resolved)
     if tick is None:
         return {
@@ -190,14 +312,35 @@ def build_symbol_package(base_symbol, output_name=None):
     h1_trend = 'UPTREND' if ema34_h1 > ema89_h1 else 'DOWNTREND'
     h4_trend = 'UPTREND' if ema34_h4 > ema89_h4 else 'DOWNTREND'
 
+    # RSI H1 divergence — so sánh RSI 3 nến H1 gần nhất vs xu hướng giá
+    rsi_h1_divergence = None
+    if len(h1_closes) >= 20:
+        rsi_h1_c = calc_rsi(h1_closes)           # nến hiện tại
+        rsi_h1_p1 = calc_rsi(h1_closes[:-1])     # 1 nến trước
+        rsi_h1_p2 = calc_rsi(h1_closes[:-2])     # 2 nến trước
+        rsi_h1_rising = rsi_h1_c > rsi_h1_p1 > rsi_h1_p2
+        rsi_h1_falling = rsi_h1_c < rsi_h1_p1 < rsi_h1_p2
+        # Bearish divergence: giá H1 tăng nhưng RSI H1 giảm
+        if h1_trend == 'UPTREND' and rsi_h1_falling:
+            rsi_h1_divergence = 'BEARISH'
+        # Bullish divergence: giá H1 giảm nhưng RSI H1 tăng
+        elif h1_trend == 'DOWNTREND' and rsi_h1_rising:
+            rsi_h1_divergence = 'BULLISH'
+
     package = {
         'symbol': resolved,
         'bid': round(tick.bid, 5) if abs(tick.bid) < 1000 else round(tick.bid, 3),
         'ask': round(tick.ask, 5) if abs(tick.ask) < 1000 else round(tick.ask, 3),
+        'key_levels': get_key_levels(resolved),
+        'rsi_h1_divergence': rsi_h1_divergence,
     }
 
     for timeframe_name, timeframe_mt5 in TIMEFRAME_CONFIG.items():
-        package[timeframe_name] = build_timeframe_profile(resolved, timeframe_name, timeframe_mt5, h1_trend, h4_trend)
+        # BTC dùng hàm riêng với lookback dài hơn và ngưỡng ADX cao hơn
+        if 'BTC' in base_symbol.upper():
+            package[timeframe_name] = build_timeframe_profile_btc(resolved, timeframe_name, timeframe_mt5, h1_trend, h4_trend)
+        else:
+            package[timeframe_name] = build_timeframe_profile(resolved, timeframe_name, timeframe_mt5, h1_trend, h4_trend)
 
     return package
 
@@ -285,6 +428,8 @@ eurusd_package = build_symbol_package('EURUSD')
 gbpusd_package = build_symbol_package('GBPUSD')
 usdjpy_package = build_symbol_package('USDJPY')
 btc_package = build_symbol_package('BTCUSD')
+ukoil_package = build_symbol_package('UKOIL')
+xagusd_package = build_symbol_package('XAGUSD')
 
 result = {
     'timestamp': now_vn(),
@@ -329,17 +474,15 @@ result = {
     'EURUSD': eurusd_package,
     'GBPUSD': gbpusd_package,
     'USDJPY': usdjpy_package,
-    'BTC': btc_package
+    'BTC': btc_package,
+    'UKOIL': ukoil_package,
+    'XAGUSD': xagusd_package,
 }
 
 daily_pnl = get_daily_pnl()
 open_pos = get_open_positions(symbol)
 if blocked:
     result['auto_trade'] = f'❌ DỪNG — Gần tin mạnh: {event_name}'
-elif daily_pnl <= -gold_cfg.get('max_daily_loss', 50):
-    result['auto_trade'] = f"❌ DỪNG — Đã thua quá ${gold_cfg.get('max_daily_loss', 50)} hôm nay"
-elif open_pos >= gold_cfg.get('max_positions', 3):
-    result['auto_trade'] = f'⏸️ CHỜ — Đang có {open_pos} lệnh vàng mở'
 else:
     if rsi_h1 > 65 and ma20_h1 < ma50_h1:
         entry = tick.bid
